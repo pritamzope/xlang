@@ -43,7 +43,7 @@ Or see the manual,
 
 #### Dependency
 
-  GCC with C++11 compiler
+  GCC with C++11 compiler<br/>
   Netwide Assembler(NASM)
 
 ### Step 1: Getting the Source Code
