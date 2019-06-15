@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>xlang x86-compiler</title>
+<style type="text/css">
+.header{
+  font-size: 25px;
+  color: #232323;
+}
+.header2{
+  font-size: 20px;
+  color: #232323;
+}
+a{
+  text-decoration:none;
+}
+.subheader{
+  font-size: 16px;
+  color: #232323;
+}
+</style>
+</head>
+
+<font class="header">XLANG Compiler,</font>
+
+<font class="subheader">version-0.0.1</font>
+<br/>
+-------------------------------------------------------------------
+
+<br/><br/>
+
+<font class="header2">
+Running XLANG
+</font>
+<br/><br/>
+
+To compile a file, type following command:<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xlang &lt;options&gt; &lt;filename&gt;
+<br/><br/>
+It will compile, assemble with NASM and will link with GCC. The assemble file
+format is elf32 and link format with GCC is m32.<br/><br/>
+Options :<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;-S : Compile a file and generate assembly (.asm) file, but do not assemble it.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;-c : Compile and assembly a file and generate object (.o) file but do not link it.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;-O1 : Apply optimizations to a code before code generation.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;--print-tree : Print Abstract Syntax Tree(AST) generated during parsing.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;--print-symtab : Print Global Symbol table.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;--print-record-symtab : Print record symbol table.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;--no-cstdlib : Do not use any C standard library while linking.
+<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;--omit-frame-pointer : Omit stack frame pointer(push ebp, mov ebp, esp).
+<br/><br/>
+For more see: <b><a href="man.html">man xlang</a></b>
+
+
+
+</html>
+
+
+

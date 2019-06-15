@@ -1,0 +1,330 @@
+<html>
+<head>
+<title>xlang x86-compiler</title>
+<style type="text/css">
+.header{
+  font-size: 25px;
+  color: #232323;
+}
+.header2{
+  font-size: 20px;
+  color: #232323;
+}
+a{
+  text-decoration:none;
+}
+.subheader{
+  font-size: 16px;
+  color: #232323;
+}
+</style>
+</head>
+
+<font class="header">XLANG Compiler,</font>
+
+<font class="subheader">version-0.0.1</font>
+<br/>
+-------------------------------------------------------------------
+
+<br/><br/>
+
+<font class="header2">
+XLANG Language
+</font>
+<br/><br/>
+
+Keywords : <br/>
+
+<table cellspacing="0" cellpadding="5" border="1">
+<tr>
+<td>asm</td>
+<td>break</td>
+<td>char</td>
+<td>const</td>
+<td>continue</td>
+</tr>
+<tr>
+<td>do</td>
+<td> double</td>
+<td> else</td>
+<td> extern</td>
+<td> float</td>
+</tr>
+<tr>
+<td>for</td>
+<td> global</td>
+<td> goto</td>
+<td> if</td>
+<td> int</td>
+</tr>
+<tr>
+<td>long</td>
+<td> record</td>
+<td> return</td>
+<td> short</td>
+<td> sizeof</td>
+</tr>
+<tr>
+<td>static</td>
+<td> void</td>
+<td> while</td>
+</tr>
+</table>
+<br/>
+Some examples are given in examples directory.
+<br/>
+Here’s the HelloWorld program,
+<br/>
+/* helloworld program in xlang */
+<br/>
+extern void printf(char*);
+<br/>
+global void main()
+<br/>
+{
+<br/>
+printf(“Hello World!”);  // print hello world
+<br/>
+}
+<br/><br/>
+
+Declaring function/variable as global prefix will make available to outside world.
+<br/>
+Also to access other globals from other files, use extern.
+<br/>
+For using functions.variables in one file declare them as static or nothing any
+global/extern.
+<br/>Also variables must be declared before use in functions.
+<br/>For more about syntax, see Appendix A.
+<br/>
+<br/>
+Variable Declaration :
+<br/>
+Supported data types are void, char, double, float, int, short, long and record types.
+<br/>e.g: int x, y;
+<br/><br/>
+Selection statement :
+<br/>
+e.g:<br/>
+if (x < y){<br/>
+}else{<br/>
+return;<br/>
+}<br/><br/>
+Supported condition operators are <, >, <=, >=, ==, != and literal.
+<br/><br/>
+Loops :<br/>
+Supports while loop, for loop and while loops with above condition operators.
+<br/>
+e.g:<br/>
+while(x > 0){<br/>
+y++;<br/>
+}<br/><br/>
+Jump statement :<br/>
+Supports goto, return and break;<br/>
+if(x < 10){<br/>
+goto label;<br/>
+}else{<br/>
+ }<br/>
+goto exit;<br/>
+}<br/>
+label:<br/>
+y = 10;<br/>
+exit:<br/>
+<br/>
+while(y >= 0){<br/>
+if(x != 10) { break; }<br/>
+<br/><br/>
+Inline assembly :<br/>
+See examples/inline_assembly.x file.<br/>
+asm{<br/>
+“&lt;template&gt;” [ &lt;output-operand&gt; : &lt;input-operand&gt; ]<br/>
+}<br/><br/>
+template : any assembly instruction, output/input operands are replaced with each<br/>
+% or %n pattern in template.<br/>
+Input/Output operand : it requires constraint as string in (“”). if has memory then its
+variable name.
+<br/>Output operand constraint follows ‘=’ sign before any type of
+constraint.<br/>
+Constraint :<br/>
+&nbsp;&nbsp;a eax<br/>
+&nbsp;&nbsp;b ebx<br/>
+&nbsp;&nbsp;c ecx<br/>
+&nbsp;&nbsp;d edx<br/>
+&nbsp;&nbsp;S esi<br/>
+&nbsp;&nbsp;D edi<br/>
+&nbsp;&nbsp;m memory<br/>
+&nbsp;&nbsp;i immediate value<br/>
+&nbsp;&nbsp;% or %n where n = 0, 1, ...<br/>
+<br/>e.g:<br/>
+asm{<br/>
+“mov eax, ebx”,<br/>
+“mov %, %” [ “=a”() : “m”(x) ] // copy value of variable x into eax register<br/>
+}<br/><br/>
+Records :<br/>
+An abstract types can be declared using records.<br/>
+See examples/record_test.x<br/>
+e.g:<br/>
+record test{<br/>
+int x;<br/>
+char ch;<br/>
+float f;<br/>
+double d;<br/>
+test next;<br/>
+int array[3][3];<br/>
+}<br/>
+<br/>
+<b>
+Example :
+</b><br/>
+Here’s the factorial program from examples/fact.x<br/><br/>
+extern&nbsp;void&nbsp;scanf(char*, int);<br/>
+extern&nbsp;void&nbsp;printf(char*, int);<br/>
+void&nbsp;print_string(char* str)<br/>
+{<br/>
+&nbsp;&nbsp;printf(str, 0);<br/>
+}<br/>
+int&nbsp;factorial(int num)<br/>
+{<br/>
+&nbsp;&nbsp;int fact;<br/>
+&nbsp;&nbsp;fact = 1;<br/>
+&nbsp;&nbsp;if(num <= 0){<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;return 1;<br/>
+&nbsp;&nbsp;}else{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;while(num > 0){<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fact = fact * num;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num--;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;return&nbsp;fact;<br/>
+}<br/>
+global&nbsp;int&nbsp;main()<br/>
+{<br/>
+&nbsp;&nbsp;int x,fact;<br/>
+&nbsp;&nbsp;print_string("Enter a number: ");<br/>
+&nbsp;&nbsp;scanf("%d", &x);<br/>
+&nbsp;&nbsp;fact = factorial(x);<br/>
+&nbsp;&nbsp;printf("factorial %d\n", fact);<br/>
+}<br/><br/>
+Compile this program and generate assembly(.asm) file.<br/><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;xlang -S examples/fact.x<br/><br/>
+Here’s the output of translated program into assembly language with comments,<br/>
+line numbers and function names with its arguments and types, local variables and<br/>
+their location on stack.<br/><br/>
+section .text<br/>
+&nbsp;&nbsp;extern&nbsp; scanf<br/>
+&nbsp;&nbsp;extern&nbsp; printf<br/>
+&nbsp;&nbsp;global&nbsp; main<br/><br/>
+; [ function: print_string(char str) ]<br/>
+print_string:<br/>
+&nbsp;&nbsp;push&nbsp; ebp<br/>
+&nbsp;&nbsp;mov&nbsp; ebp, esp<br/>
+&nbsp;&nbsp;; str = [ebp + 8], dword<br/>
+&nbsp;&nbsp;; line: 6, func_call: printf<br/>
+&nbsp;&nbsp;; line 6<br/>
+&nbsp;&nbsp;mov&nbsp; eax, 0<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 2<br/>
+&nbsp;&nbsp;; line 6<br/>
+&nbsp;&nbsp;mov&nbsp; eax, dword[ebp + 8] ; assignment str<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 1<br/>
+&nbsp;&nbsp;call&nbsp; printf<br/>
+&nbsp;&nbsp;add&nbsp; esp, 8 ; restore func-call params stack frame<br/>
+._exit_print_string:<br/>
+&nbsp;&nbsp;mov&nbsp; esp, ebp<br/>
+&nbsp;&nbsp;pop&nbsp; ebp<br/>
+&nbsp;&nbsp;ret<br/>
+; [ function: factorial(int num) ]<br/>
+factorial:<br/>
+&nbsp;&nbsp;push&nbsp; ebp<br/>
+&nbsp;&nbsp;mov&nbsp; ebp, esp<br/>
+&nbsp;&nbsp;sub&nbsp; esp, 4 ; allocate space for local variables<br/>
+&nbsp;&nbsp;; num = [ebp + 8], dword<br/>
+&nbsp;&nbsp;; fact = [ebp - 4], dword<br/>
+&nbsp;&nbsp;; line 12<br/>
+&nbsp;&nbsp;mov&nbsp; eax, 1<br/>
+&nbsp;&nbsp;mov&nbsp; dword[ebp - 4], eax<br/>
+&nbsp;&nbsp;; condition checking, line 14<br/>
+&nbsp;&nbsp;cmp&nbsp; dword[ebp + 8], 0<br/>
+&nbsp;&nbsp;jle&nbsp; .if_label1<br/>
+&nbsp;&nbsp;jmp&nbsp; .else_label1<br/>
+.if_label1:<br/>
+&nbsp;&nbsp;; line 15<br/>
+&nbsp;&nbsp;mov&nbsp; eax, 1<br/>
+&nbsp;&nbsp;jmp&nbsp; ._exit_factorial ; return, line 15<br/>
+&nbsp;&nbsp;jmp&nbsp; .exit_if1<br/>
+.else_label1:<br/>
+; while loop, line 17<br/>
+.while_loop1:<br/>
+&nbsp;&nbsp;; condition checking, line 17<br/>
+&nbsp;&nbsp;cmp&nbsp; dword[ebp + 8], 0<br/>
+&nbsp;&nbsp;jle&nbsp; .exit_while_loop1<br/>
+&nbsp;&nbsp;; line 18<br/>
+&nbsp;&nbsp;xor&nbsp; eax, eax<br/>
+&nbsp;&nbsp;xor&nbsp; edx, edx<br/>
+&nbsp;&nbsp;mov&nbsp; eax, dword[ebp - 4] ; fact<br/>
+&nbsp;&nbsp;mov&nbsp; ebx, dword[ebp + 8] ; num<br/>
+&nbsp;&nbsp;mul&nbsp; ebx<br/>
+&nbsp;&nbsp;mov&nbsp; dword[ebp - 4], eax<br/>
+&nbsp;&nbsp;; line 19<br/>
+&nbsp;&nbsp;dec&nbsp; dword[ebp + 8] ; --<br/>
+&nbsp;&nbsp;jmp&nbsp; .while_loop1 ; jmp to while loop<br/>
+.exit_while_loop1:<br/>
+.exit_if1:<br/>
+&nbsp;&nbsp;; line 23<br/>
+&nbsp;&nbsp;mov&nbsp; eax, dword[ebp - 4] ; assignment fact<br/>
+&nbsp;&nbsp;jmp&nbsp; ._exit_factorial ; return, line 23<br/>
+._exit_factorial:<br/>
+&nbsp;&nbsp;mov&nbsp; esp, ebp<br/>
+&nbsp;&nbsp;pop&nbsp; ebp<br/>
+&nbsp;&nbsp;ret<br/>
+; [ function: main() ]<br/>
+main:<br/>
+&nbsp;&nbsp;push&nbsp; ebp<br/>
+&nbsp;&nbsp;mov&nbsp; ebp, esp<br/>
+&nbsp;&nbsp;sub&nbsp; esp, 8 ; allocate space for local variables<br/>
+&nbsp;&nbsp;; fact = [ebp - 8], dword<br/>
+&nbsp;&nbsp;; x = [ebp - 4], dword<br/>
+&nbsp;&nbsp;; line: 30, func_call: print_string<br/>
+&nbsp;&nbsp;mov&nbsp; eax, string_val1<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 1<br/>
+&nbsp;&nbsp;call&nbsp; print_string<br/>
+&nbsp;&nbsp;add&nbsp; esp, 4 ; restore func-call params stack frame<br/>
+&nbsp;&nbsp;; line: 31, func_call: scanf<br/>
+&nbsp;&nbsp;; line 31<br/>
+&nbsp;&nbsp;lea&nbsp; eax, [ebp - 4] ; address of<br/>
+&nbsp;push&nbsp; eax ; param 2<br/>
+&nbsp;&nbsp;mov&nbsp; eax, string_val2<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 1<br/>
+&nbsp;&nbsp;call&nbsp; scanf<br/>
+&nbsp;&nbsp;add&nbsp; esp, 8 ; restore func-call params stack frame<br/>
+&nbsp;&nbsp;; line: 32, func_call: factorial<br/>
+&nbsp;&nbsp;; line 32<br/>
+&nbsp;&nbsp;mov&nbsp; eax, dword[ebp - 4] ; assignment x<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 1<br/>
+&nbsp;&nbsp;call&nbsp; factorial<br/>
+&nbsp;&nbsp;add&nbsp; esp, 4 ; restore func-call params stack frame<br/>
+&nbsp;&nbsp;mov&nbsp; dword[ebp - 8], eax ; line: 32, assign<br/>
+&nbsp;&nbsp;; line: 34, func_call: printf<br/>
+&nbsp;&nbsp;; line 34<br/>
+&nbsp;&nbsp;mov&nbsp; eax, dword[ebp - 8] ; assignment fact<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 2<br/>
+&nbsp;&nbsp;mov&nbsp; eax, string_val3<br/>
+&nbsp;&nbsp;push&nbsp; eax ; param 1<br/>
+&nbsp;&nbsp;call&nbsp; printf<br/>
+&nbsp;&nbsp;add&nbsp; esp, 8 ; restore func-call params stack frame<br/>
+._exit_main:<br/>
+&nbsp;&nbsp;mov&nbsp; esp, ebp<br/>
+&nbsp;&nbsp;pop&nbsp; ebp<br/>
+&nbsp;&nbsp;ret<br/><br/>
+section .data<br/>
+&nbsp;&nbsp;string_val1 db 0x45,0x6E,0x74,0x65,0x72,0x20,0x61,0x20,0x6E,0x75,0x6D,0x62,0x65,0x72,0x3A,0x20,
+0x00 ; 'Enter a number: '<br/>
+&nbsp;&nbsp;string_val2 db 0x25,0x64,0x00 ; '%d'<br/>
+&nbsp;&nbsp;string_val3 db
+0x66,0x61,0x63,0x74,0x6F,0x72,0x69,0x61,0x6C,0x20,0x25,0x64,0x0A,0x00 ; 'factorial
+%d\n'<br/>
+<br/>
+
+</html>
+
+
+

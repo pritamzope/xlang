@@ -1,0 +1,440 @@
+keyword : one of
+  asm
+  break
+  char
+  const
+  continue
+  do
+  double
+  else
+  extern
+  float
+  for
+  global
+  goto
+  if
+  int
+  long
+  record
+  return
+  short
+  sizeof
+  static
+  void
+  while
+
+symbol : one of
+  ! % ^ ~ & * ( ) - + = [ ] { } | : ; < > , . / \ ' " $
+
+literal :
+  integer-literal
+  float-literal
+  character-literal
+  string-literal
+
+integer-literal :
+  decimal-literal
+  octal-literal
+  hexadecimal-literal
+  binary-literal
+
+decimal-literal :
+  nonzero-digit
+  nonzero-digit sub-decimal-literal
+
+sub-decimal-literal :
+  digit
+  digit sub-decimal-literal
+
+octal-literal :
+  0
+  0 sub-octal-literal
+
+sub-octal-literal :
+  octal-digit
+  octal-digit sub-octal-literal
+
+hexadecimal-literal :
+  0x sub-hexadecimal-literal
+  0X sub-hexadecimal-literal
+
+sub-hexadecimal-literal :
+  hexadecimal-digit
+  hexadecimal-digit sub-hexadecimal-literal
+
+binary-literal :
+  0b sub-binary-literal
+  0B sub-binary-literal
+
+sub-binary-literal :
+  one of 0 1
+  one of 0 1 sub-binary-literal
+
+digit : one of
+    0 1 2 3 4 5 6 7 8 9
+
+nonzero-digit : one of
+	1 2 3 4 5 6 7 8 9
+
+octal-digit : one of
+  0 1 2 3 4 5 6 7
+
+hexadecimal-digit : one of
+	0 1 2 3 4 5 6 7 8 9
+	a b c d e f
+	A B C D E F
+
+
+float-literal :
+	digit-sequence . digit-sequence
+	digit-sequence .
+
+digit-sequence :
+  digit
+  digit digit-sequence
+
+comment :
+  / / any character except newline
+  / * any character * /
+
+character-literal :
+  'c-char-sequence'
+
+c-char-sequence :
+  c-char
+  c-char c-char-sequence
+
+c-char :
+  any character except single quote, backslash and new line
+  escape-sequence
+
+escape-sequence :
+  \' \" \? \\ \a \b \f \n \r \t \v \0
+
+string-literal :
+  "s-char-sequence"
+
+s-char-sequence :
+  s-char
+  s-char s-char-sequence
+
+s-char :
+  any character except double quote, backslash and new line
+  escape-sequence
+
+string-literal-sequence :
+  string-literal
+  string-literal , string-literal-sequence
+
+non-digit : one of
+  _ $ a b c d e f g h i j k l m n o p q r s t u v w x y z
+  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+
+identifier :
+  non-digit
+  non-digit sub-identifier
+
+sub-identifier :
+  non-digit
+  digit
+  non-digit sub-identifier
+  digit sub-identifier
+
+token :
+  identifier
+  keyword
+  literal
+  assignment-operator
+  arithmetic-operator
+  comparison-operator
+  logical-operator
+  bitwise-operator
+  pointer-operator
+  address-of-operator
+  incr-operator
+  decr-operator
+  .
+  ,
+  {
+  }
+  [
+  ]
+  (
+  )
+  :
+  ;
+
+
+expression :
+  primary-expression
+  assignment-expression
+  sizeof-expression
+  cast-expression
+  id-expression
+  function-call-expression
+
+primary-expression :
+  literal
+  identifier
+  ( primary-expression )
+  ( primary-expression ) primary-expression
+  unary-operator primary-expression
+  literal binary-operator primary-expression
+  id-expression binary-operator primary-expression
+  sub-primary-expression
+
+sub-primary-expression :
+  binary-operator primary-expression
+
+constant-expression :
+  integer-literal
+  character-literal
+
+assignment-expression :
+  id-expression assignment-operator expression
+
+incr-decr-expression :
+  prefix-incr-expression
+  postfix-incr-expression
+  prefix-decr-expression
+  postfix-decr-expression
+
+prefix-incr-expression :
+  incr-operator id-expression
+
+postfix-incr-expression :
+  id-expression incr-operator
+
+prefix-decr-expression :
+  decr-operator id-expression
+
+postfix-decr-expression :
+  id-expression decr-operator
+
+incr-operator :
+  ++
+
+decr-operator :
+  --
+
+id-expression :
+  identifier
+  identifier . id-expression
+  identifier -> id-expression
+  identifier subscript-id-access
+  pointer-indirection-access
+  incr-decr-expression
+  address-of-expression
+
+subscript-id-access :
+  [ identifier ]
+  [ constant-expression ]
+  [ id-expression ] subscript-id-access
+  [ constant-expression ] subscript-id-access
+  [ identifier ] . id-expression
+  [ constant-expression ] -> id-expression
+
+pointer-indirection-access :
+  pointer-operator-sequence id-expression
+
+pointer-operator-sequence :
+  pointer-operator
+  pointer-operator pointer-operator-sequence
+
+pointer-operator :
+  *
+
+unary-operator : one of
+  + - ! ~
+
+binary-operator :
+  arithmetic-operator
+  logical-operator
+  comparison-operator
+  bitwise-operator
+
+arithmetic-operator : one of
+  + - * / %
+
+logical-operator : one of
+  && ||
+
+comparison-operator : one of
+  < <= > >= == !=
+
+bitwise-operator : one of
+  | & ^ << >> bit_and bit_or bit_xor
+
+assignment-operator : one of
+  = += -= *= /= %= |= &= ^= <<= >>=
+
+address-of-expression :
+  & id-expression
+
+sizeof-expression :
+  sizeof ( simple-type-specifier )
+  sizeof ( identifier )
+
+cast-expression :
+  ( cast-type-specifier ) identifier
+
+cast-type-specifier :
+  simple-type-specifier
+  identifier
+  simple-type-specifier pointer-operator-sequence
+  identifier pointer-operator-sequence
+
+function-call-expression :
+  id-expression ( )
+  id-expression ( func-call-expression-list )
+
+func-call-expression-list :
+  expression
+  expression , func-call-expression-list
+
+type-specifier :
+  simple-type-specifier
+  record-name
+
+simple-type-specifier :
+  void
+  char
+  double
+  float
+  int
+  short
+  long
+
+record-specifier :
+  record-head { record-member-definition }
+
+record-head :
+  global record record-name
+  record record-name
+
+record-name :
+  identifier
+
+record-member-definition :
+  type-specifier rec-id-list
+
+rec-id-list : 
+  identifier 
+  identifier rec-subscript-member
+  identifier , rec-id-list
+  identifier rec-subscript-member , rec-id-list
+  pointer-operator-sequence rec-id-list
+  rec-func-pointer-member
+  pointer-operator-sequence rec-func-pointer-member
+
+rec-subscript-member : 
+  [ constant-expression ]
+  [ constant-expression ] rec-subscript-member
+
+rec-func-pointer-member : 
+  ( pointer-operator identifier ) ( rec-func-pointer-params )
+
+rec-func-pointer-params :
+  type-specifier
+  type-specifier pointer-operator-sequence
+  type-specifier , rec-func-pointer-params
+  type-specifier pointer-operator-sequence , rec-func-pointer-params
+
+declaration :
+  simple-declaration
+  function-declaration
+
+simple-declaration :
+  type-specifier simple-declarator-list
+  const type-specifier simple-declarator-list
+  extern type-specifier simple-declarator-list
+  static type-specifier simple-declarator-list
+  global type-specifier simple-declarator-list
+
+simple-declarator-list :
+  identifier
+  identifier subscript-declarator
+  identifier , simple-declarator-list
+  identifier subscript-declarator , simple-declarator-list
+  pointer-operator-sequence simple-declarator-list
+
+subscript-declarator :
+  [ constant-expression ]
+  [ constant-expression ] subscript-declarator
+
+
+function-declaration :
+  func-head
+
+func-head :
+  type-specifier function-name ( func-params )
+  extern type-specifier function-name ( func-params )
+  global type-specifier function-name ( func-params )
+
+function-name :
+  identifier
+
+func-params :
+  type-specifier
+  type-specifier identifier
+  type-specifier pointer-operator-sequence
+  type-specifier pointer-operator-sequence identifier
+  type-specifier , func-params
+  type-specifier identifier , func-params
+  type-specifier pointer-operator-sequence , func-params
+  type-specifier pointer-operator-sequence identifier , func-params
+
+asm-statement :
+  asm { asm-statement-sequence }
+
+asm-statement-sequence : 
+  string-literal [ asm-operand : asm-operand ] 
+  string-literal [ asm-operand : asm-operand ] , asm-statement-sequence
+
+asm-operand : 
+  string-literal ( expression )
+  string-literal ( expression ) , asm-operand
+
+function-definition :
+  func-head { statement }
+
+statement :
+  labled-statement
+  expression-statement
+  selection-statement
+  iteration-statement
+  jump-statement
+  simple-declaration
+
+statement-list : 
+  statement
+  statement statement-list
+
+labled-statement :
+  identifier : 
+
+expression-statement :
+  expression
+
+selection-statement :
+  if ( condition ) { statement-list }
+  if ( condition ) { statement-list } else { statement-list }
+
+condition :
+  expression
+
+iteration-statement :
+  while ( condition ) { statement-list }
+  do { statement-list } while ( condition ) ;
+  for ( init-expression ; condition ; update-expression ) { statement-list }
+
+jump-statement :
+  break ;
+  continue ;
+  return expression
+  goto identifier
+
+declaration-statement :
+  declaration
+
+

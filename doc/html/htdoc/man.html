@@ -1,0 +1,214 @@
+Content-type: text/html; charset=UTF-8
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Man page of XLANG</TITLE>
+</HEAD><BODY>
+<H1>XLANG</H1>
+Section: X Programming Language Compiler (1)<BR>Updated: 24 May 2019<BR><A HREF="#index">Index</A>
+<A HREF="/cgi-bin/man/man2html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+xlang - X programming language compiler for Intel x86 processor 
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>xlang </B><I>infile</I>
+
+[<B>-c</B>|<B>-S</B>|<B>-O1</B>]
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>--print-tree</B>]&nbsp;
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>--print-symtab</B>]
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>--print-record-symtab</B>]
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>--no-cstdlib</B>]
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[<B>--omit-frame-pointer</B>]&nbsp;
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<B>xlang</B>
+
+translates high level language code into its equivalent x86 <B>NASM</B> assembly code.
+The syntax of language is same as general syntax of a C programming language.
+It normally does compilation, assembly using <B>NASM</B> and linking using <B>GCC</B>.
+It takes input filename ends with .x. Only one file gets compiled at a time.
+It will generate simplest of a simple assembly code without any optimizations with provided data type sizes.
+Optimiation can be applied with <B>-O1</B> option.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>OPTIONS</H2>
+
+<DL COMPACT>
+<DT><B>-S</B>
+
+<DD>
+stop after compiling program and generate assembly(.asm) file.
+<DT><B>-c</B>
+
+<DD>
+compile and assemble program using <B>NASM</B> assembler.
+<DT><B>-O1</B>
+
+<DD>
+apply optimization to code such as constant-folding, strength-reduction, dead-code-elimination etc.
+<DT><B>--print-tree</B>
+
+<DD>
+print Abstract Syntax Tree(AST) generated during compilation process.
+<DT><B>--print-symtab</B>
+
+<DD>
+print global symbol table generated during compilation process.
+<DT><B>--print-record-symtab</B>
+
+<DD>
+print global record ADT symbol table generated during compilation process.
+<DT><B>--no-cstdlib</B>
+
+<DD>
+during linking do not link standard C library. this passes <B>-nostdlib</B> option to <B>GCC</B> while linking.
+<DT><B>--omit-frame-pointer</B>
+
+<DD>
+do not generate code for previous stack frame saving (push ebp, mov ebp, esp, ... pop ebp)
+</DL>
+<A NAME="lbAF">&nbsp;</A>
+<H2>EXAMPLE</H2>
+
+<DL COMPACT>
+<DT>Consider following simple arithmetic test program <B>test.x</B>.<DD>
+<DT>
+<DD>
+extern void printf(char*, int);
+<DT>
+<DD>
+int a,b,c;
+<DT>
+<DD>
+int z;
+z=10;
+<DT>
+<DD>
+global int main()
+<DT>
+<DD>
+{
+<BR>&nbsp;&nbsp;int&nbsp;result;
+<BR>&nbsp;&nbsp;a&nbsp;=&nbsp;2;
+<BR>&nbsp;&nbsp;b&nbsp;=&nbsp;5;
+<BR>&nbsp;&nbsp;c&nbsp;=&nbsp;7;
+<P>
+<BR>&nbsp;&nbsp;result&nbsp;=&nbsp;a&nbsp;+&nbsp;b&nbsp;*&nbsp;c&nbsp;/&nbsp;z;
+<BR>&nbsp;&nbsp;printf(&quot;result&nbsp;=&nbsp;%d\n&quot;,&nbsp;result);
+<DT>
+<DD>
+}
+<DT>Compile it and generate assembly code.<DD>
+<DT>
+<DD>
+<B>xlang -S test.x</B>
+<DT>It will generate following <B>x86 NASM</B> assembly code <B>test.asm</B> file. With no options, xlang will compile program, assemble it with <B>NASM</B> and link it with <B>GCC</B>, that can be run with <B>./a.out</B> command.<DD>
+<P>
+section .text
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;extern&nbsp;printf
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;global&nbsp;main
+<P>
+; [ function: main() ]
+<DT>
+<DD>
+main:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;ebp
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ebp,&nbsp;esp
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;sub&nbsp;esp,&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;allocate&nbsp;space&nbsp;for&nbsp;local&nbsp;variables
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;result&nbsp;=&nbsp;[ebp&nbsp;-&nbsp;4],&nbsp;dword
+<DT>
+<DD>
+; line 11
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;2
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dword[a],&nbsp;eax&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;line:&nbsp;11
+<DT>
+<DD>
+; line 12
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;5
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dword[b],&nbsp;eax&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;line:&nbsp;12
+<DT>
+<DD>
+; line 13
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;7
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dword[c],&nbsp;eax&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;line:&nbsp;13
+<DT>
+<DD>
+; line 15
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;xor&nbsp;eax,&nbsp;eax
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;xor&nbsp;edx,&nbsp;edx
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;dword[b]&nbsp;&nbsp;;&nbsp;b
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ebx,&nbsp;dword[c]&nbsp;&nbsp;;&nbsp;c
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mul&nbsp;ebx
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ebx,&nbsp;dword[z]&nbsp;&nbsp;;&nbsp;z
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;div&nbsp;ebx
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;ebx,&nbsp;dword[a]&nbsp;&nbsp;;&nbsp;a
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;eax,&nbsp;ebx
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;dword[ebp&nbsp;-&nbsp;4],&nbsp;eax&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;line:&nbsp;15
+<DT>
+<DD>
+; line: 16, func_call: printf
+; line 16
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;dword[ebp&nbsp;-&nbsp;4]&nbsp;&nbsp;;&nbsp;result
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;eax&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;param&nbsp;2
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;eax,&nbsp;string_val1
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;push&nbsp;eax&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;param&nbsp;1
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;call&nbsp;printf
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;esp,&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;restore&nbsp;func-call&nbsp;params&nbsp;stack&nbsp;frame
+
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;mov&nbsp;esp,&nbsp;ebp
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;pop&nbsp;ebp
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;ret&nbsp;
+<P>
+section .data
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;z&nbsp;dd&nbsp;10
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;string_val1&nbsp;db&nbsp;0x72,0x65,0x73,0x75,0x6C,0x74,0x20,0x3D,0x20,0x25,0x64,0x0A,0x00&nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;'result&nbsp;=&nbsp;%d
+<P>
+<P>
+section .bss
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;c&nbsp;resd&nbsp;1
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;resd&nbsp;1
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;b&nbsp;resd&nbsp;1
+<P>
+<P>
+<DT>You can assembly this .asm file using <B>NASM</B> with -felf32 option.<DD>
+<P>
+</DL>
+<A NAME="lbAG">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<B><A HREF="/cgi-bin/man/man2html?1+nasm">nasm</A>(1),  <A HREF="/cgi-bin/man/man2html?1+gcc">gcc</A>(1).</B>
+
+<P>
+<P>
+<P>
+<P>
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">OPTIONS</A><DD>
+<DT><A HREF="#lbAF">EXAMPLE</A><DD>
+<DT><A HREF="#lbAG">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="/cgi-bin/man/man2html">man2html</A>,
+using the manual pages.<BR>
+Time: 14:12:42 GMT, June 11, 2019
+</BODY>
+</HTML>

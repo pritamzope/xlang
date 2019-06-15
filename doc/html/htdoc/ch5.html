@@ -1,0 +1,63 @@
+<html>
+<head>
+<title>xlang x86-compiler</title>
+<style type="text/css">
+.header{
+  font-size: 25px;
+  color: #232323;
+}
+.header2{
+  font-size: 20px;
+  color: #232323;
+}
+a{
+  text-decoration:none;
+}
+.subheader{
+  font-size: 16px;
+  color: #232323;
+}
+</style>
+</head>
+
+<font class="header">XLANG Compiler,</font>
+
+<font class="subheader">version-0.0.1</font>
+<br/>
+-------------------------------------------------------------------
+
+<br/><br/>
+
+<font class="header2">
+Compiler Internals
+</font>
+<br/><br/>
+
+Everything has implemented by hand.No tools has been used.<br/>
+C++ programming language is used to write a compiler.<br/>
+A lexer that returns a token(consist of numeric value, lexeme, location) using lexical
+grammar rules. A buffering technique is used for input of characters.(files: lexer.hpp
+and lexer.cpp, token.hpp)<br/>
+For parsing, a hand written Recursive Descent Parser is used for parsing using
+grammar rules that generate an Abstract Syntax Tree(AST) along with the Symbol
+table.A Reverse Polish Notation technique is used to generate tree for primary
+expressions.(files: parser.hpp, parser.cpp, tree.hpp, tree.cpp, symtab.hpp,
+symtab.cpp)<br/>
+A static sematic analyzer takes this AST from parser, travese it and checks for
+attribute errors(e.g. invalid types, undefined function-call etc.).(files: analyze.hpp,
+analyze.cpp)<br/>
+An optimizer traverses AST and try to optimize it by reducing unused variables,
+precomputing constant expressions etc.(files: optimize.hpp, optimize.cpp)<br/>
+An x86 code generation phase generate final NASM assembly code that is written
+to a file(.asm), that then will be assembled with NASM and will be linked with GCC
+to form final executable. Code generation uses the types of register supported by
+intel x86 as well as instructions with their separate types.(files: x86_gen.hpp,
+x86_gen.cpp, insn.hpp, insn.cpp, regs.hpp, regs.cpp)<br/>
+
+<br/>
+
+
+</html>
+
+
+

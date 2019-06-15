@@ -1,0 +1,479 @@
+<html>
+<head>
+<title>xlang x86-compiler</title>
+<style type="text/css">
+.header{
+  font-size: 25px;
+  color: #232323;
+}
+.header2{
+  font-size: 20px;
+  color: #232323;
+}
+a{
+  text-decoration:none;
+}
+.subheader{
+  font-size: 16px;
+  color: #232323;
+}
+</style>
+</head>
+
+<font class="header">XLANG Compiler,</font>
+
+<font class="subheader">version-0.0.1</font>
+<br/>
+-------------------------------------------------------------------
+
+<br/><br/>
+
+<font class="header2">
+Grammar
+</font>
+<br/><br/>
+
+keyword : one of<br/>
+  asm<br/>
+  break<br/>
+  char<br/>
+  const<br/>
+  continue<br/>
+  do<br/>
+  double<br/>
+  else<br/>
+  extern<br/>
+  float<br/>
+  for<br/>
+  global<br/>
+  goto<br/>
+  if<br/>
+  int<br/>
+  long<br/>
+  record<br/>
+  return<br/>
+  short<br/>
+  sizeof<br/>
+  static<br/>
+  void<br/>
+  while<br/>
+<br/>
+symbol : one of<br/>
+  ! % ^ ~ & * ( ) - + = [ ] { } | : ; < > , . / \ ' " $<br/>
+<br/>
+literal :<br/>
+  integer-literal<br/>
+  float-literal<br/>
+  character-literal<br/>
+  string-literal<br/>
+<br/>
+integer-literal :<br/>
+  decimal-literal<br/>
+  octal-literal<br/>
+  hexadecimal-literal<br/>
+  binary-literal<br/>
+<br/>
+decimal-literal :<br/>
+  nonzero-digit<br/>
+  nonzero-digit sub-decimal-literal<br/>
+<br/>
+sub-decimal-literal :<br/>
+  digit<br/>
+  digit sub-decimal-literal<br/>
+<br/>
+octal-literal :<br/>
+  0<br/>
+  0 sub-octal-literal<br/>
+<br/>
+sub-octal-literal :<br/>
+  octal-digit<br/>
+  octal-digit sub-octal-literal<br/>
+<br/>
+hexadecimal-literal :<br/>
+  0x sub-hexadecimal-literal<br/>
+  0X sub-hexadecimal-literal<br/>
+<br/>
+sub-hexadecimal-literal :<br/>
+  hexadecimal-digit<br/>
+  hexadecimal-digit sub-hexadecimal-literal<br/>
+<br/>
+binary-literal :<br/>
+  0b sub-binary-literal<br/>
+  0B sub-binary-literal<br/>
+<br/>
+sub-binary-literal :<br/>
+  one of 0 1<br/>
+  one of 0 1 sub-binary-literal<br/>
+<br/>
+digit : one of<br/>
+    0 1 2 3 4 5 6 7 8 9<br/>
+<br/>
+nonzero-digit : one of<br/>
+	1 2 3 4 5 6 7 8 9<br/>
+<br/>
+octal-digit : one of<br/>
+  0 1 2 3 4 5 6 7<br/>
+<br/>
+hexadecimal-digit : one of<br/>
+	0 1 2 3 4 5 6 7 8 9<br/>
+	a b c d e f<br/>
+	A B C D E F<br/>
+<br/>
+float-literal :<br/>
+	digit-sequence . digit-sequence<br/>
+	digit-sequence .<br/>
+<br/>
+digit-sequence :<br/>
+  digit<br/>
+  digit digit-sequence<br/>
+<br/>
+comment :<br/>
+  / / any character except newline<br/>
+  / * any character * /<br/>
+<br/>
+character-literal :<br/>
+  'c-char-sequence'<br/>
+<br/>
+c-char-sequence :<br/>
+  c-char<br/>
+  c-char c-char-sequence<br/>
+<br/>
+c-char :<br/>
+  any character except single quote, backslash and new line<br/>
+  escape-sequence<br/>
+<br/>
+escape-sequence :<br/>
+  \' \" \? \\ \a \b \f \n \r \t \v \0<br/>
+<br/>
+string-literal :<br/>
+  "s-char-sequence"<br/>
+<br/>
+s-char-sequence :<br/>
+  s-char<br/>
+  s-char s-char-sequence<br/>
+<br/>
+s-char :
+  any character except double quote, backslash and new line<br/>
+  escape-sequence<br/>
+<br/>
+string-literal-sequence :<br/>
+  string-literal<br/>
+  string-literal , string-literal-sequence<br/>
+<br/>
+non-digit : one of<br/>
+  _ $ a b c d e f g h i j k l m n o p q r s t u v w x y z<br/>
+  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z<br/>
+<br/>
+identifier :<br/>
+  non-digit<br/>
+  non-digit sub-identifier<br/>
+<br/>
+sub-identifier :<br/>
+  non-digit<br/>
+  digit<br/>
+  non-digit sub-identifier<br/>
+  digit sub-identifier<br/>
+<br/>
+token :<br/>
+  identifier<br/>
+  keyword<br/>
+  literal<br/>
+  assignment-operator<br/>
+  arithmetic-operator<br/>
+  comparison-operator<br/>
+  logical-operator<br/>
+  bitwise-operator<br/>
+  pointer-operator<br/>
+  address-of-operator<br/>
+  incr-operator<br/>
+  decr-operator<br/>
+  .<br/>
+  ,<br/>
+  {<br/>
+  }<br/>
+  [<br/>
+  ]<br/>
+  (<br/>
+  )<br/>
+  :<br/>
+  ;<br/>
+<br/>
+<br/>
+expression :<br/>
+  primary-expression<br/>
+  assignment-expression<br/>
+  sizeof-expression<br/>
+  cast-expression<br/>
+  id-expression<br/>
+  function-call-expression<br/>
+<br/>
+primary-expression :<br/>
+  literal<br/>
+  identifier<br/>
+  ( primary-expression )<br/>
+  ( primary-expression ) primary-expression<br/>
+  unary-operator primary-expression<br/>
+  literal binary-operator primary-expression<br/>
+  id-expression binary-operator primary-expression<br/>
+  sub-primary-expression<br/>
+<br/>
+sub-primary-expression :<br/>
+  binary-operator primary-expression<br/>
+<br/>
+constant-expression :<br/>
+  integer-literal<br/>
+  character-literal<br/>
+<br/>
+assignment-expression :<br/>
+  id-expression assignment-operator expression<br/>
+<br/>
+incr-decr-expression :<br/>
+  prefix-incr-expression<br/>
+  postfix-incr-expression<br/>
+  prefix-decr-expression<br/>
+  postfix-decr-expression<br/>
+<br/>
+prefix-incr-expression :<br/>
+  incr-operator id-expression<br/>
+<br/>
+postfix-incr-expression :<br/>
+  id-expression incr-operator<br/>
+<br/>
+prefix-decr-expression :<br/>
+  decr-operator id-expression<br/>
+<br/>
+postfix-decr-expression :<br/>
+  id-expression decr-operator<br/>
+<br/>
+incr-operator :<br/>
+  ++<br/>
+<br/>
+decr-operator :<br/>
+  --<br/>
+<br/>
+id-expression :<br/>
+  identifier<br/>
+  identifier . id-expression<br/>
+  identifier -> id-expression<br/>
+  identifier subscript-id-access<br/>
+  pointer-indirection-access<br/>
+  incr-decr-expression<br/>
+  address-of-expression<br/>
+<br/>
+subscript-id-access :<br/>
+  [ identifier ]<br/>
+  [ constant-expression ]<br/>
+  [ id-expression ] subscript-id-access<br/>
+  [ constant-expression ] subscript-id-access<br/>
+  [ identifier ] . id-expression<br/>
+  [ constant-expression ] -> id-expression<br/>
+<br/>
+pointer-indirection-access :<br/>
+  pointer-operator-sequence id-expression<br/>
+<br/>
+pointer-operator-sequence :<br/>
+  pointer-operator<br/>
+  pointer-operator pointer-operator-sequence<br/>
+<br/>
+pointer-operator :<br/>
+  *<br/>
+<br/>
+unary-operator : one of<br/>
+  + - ! ~<br/>
+<br/>
+binary-operator :<br/>
+  arithmetic-operator<br/>
+  logical-operator<br/>
+  comparison-operator<br/>
+  bitwise-operator<br/>
+<br/>
+arithmetic-operator : one of<br/>
+  + - * / %<br/>
+<br/>
+logical-operator : one of<br/>
+  && ||<br/>
+<br/>
+comparison-operator : one of<br/>
+  < <= > >= == !=<br/>
+<br/>
+bitwise-operator : one of<br/>
+  | & ^ << >> bit_and bit_or bit_xor<br/>
+<br/>
+assignment-operator : one of<br/>
+  = += -= *= /= %= |= &= ^= <<= >>=<br/>
+<br/>
+address-of-expression :<br/>
+  & id-expression<br/>
+<br/>
+sizeof-expression :<br/>
+  sizeof ( simple-type-specifier )<br/>
+  sizeof ( identifier )<br/>
+<br/>
+cast-expression :<br/>
+  ( cast-type-specifier ) identifier<br/>
+<br/>
+cast-type-specifier :<br/>
+  simple-type-specifier<br/>
+  identifier<br/>
+  simple-type-specifier pointer-operator-sequence<br/>
+  identifier pointer-operator-sequence<br/>
+<br/>
+function-call-expression :<br/>
+  id-expression ( )<br/>
+  id-expression ( func-call-expression-list )<br/>
+<br/>
+func-call-expression-list :<br/>
+  expression<br/>
+  expression , func-call-expression-list<br/>
+<br/>
+type-specifier :<br/>
+  simple-type-specifier<br/>
+  record-name<br/>
+<br/>
+simple-type-specifier :<br/>
+  void<br/>
+  char<br/>
+  double<br/>
+  float<br/>
+  int<br/>
+  short<br/>
+  long<br/>
+<br/>
+record-specifier :<br/>
+  record-head { record-member-definition }<br/>
+<br/>
+record-head :<br/>
+  global record record-name<br/>
+  record record-name<br/>
+<br/>
+record-name :<br/>
+  identifier<br/>
+<br/>
+record-member-definition :<br/>
+  type-specifier rec-id-list<br/>
+<br/>
+rec-id-list : <br/>
+  identifier <br/>
+  identifier rec-subscript-member<br/>
+  identifier , rec-id-list<br/>
+  identifier rec-subscript-member , rec-id-list<br/>
+  pointer-operator-sequence rec-id-list<br/>
+  rec-func-pointer-member<br/>
+  pointer-operator-sequence rec-func-pointer-member<br/>
+<br/>
+rec-subscript-member : <br/>
+  [ constant-expression ]<br/>
+  [ constant-expression ] rec-subscript-member<br/>
+<br/>
+rec-func-pointer-member : <br/>
+  ( pointer-operator identifier ) ( rec-func-pointer-params )<br/>
+<br/>
+rec-func-pointer-params :<br/>
+  type-specifier<br/>
+  type-specifier pointer-operator-sequence<br/>
+  type-specifier , rec-func-pointer-params<br/>
+  type-specifier pointer-operator-sequence , rec-func-pointer-params<br/>
+<br/>
+declaration :<br/>
+  simple-declaration<br/>
+  function-declaration<br/>
+<br/>
+simple-declaration :<br/>
+  type-specifier simple-declarator-list<br/>
+  const type-specifier simple-declarator-list<br/>
+  extern type-specifier simple-declarator-list<br/>
+  static type-specifier simple-declarator-list<br/>
+  global type-specifier simple-declarator-list<br/>
+<br/>
+simple-declarator-list :<br/>
+  identifier<br/>
+  identifier subscript-declarator<br/>
+  identifier , simple-declarator-list<br/>
+  identifier subscript-declarator , simple-declarator-list<br/>
+  pointer-operator-sequence simple-declarator-list<br/>
+<br/>
+subscript-declarator :<br/>
+  [ constant-expression ]<br/>
+  [ constant-expression ] subscript-declarator<br/>
+<br/>
+function-declaration :<br/>
+  func-head<br/>
+<br/>
+func-head :<br/>
+  type-specifier function-name ( func-params )<br/>
+  extern type-specifier function-name ( func-params )<br/>
+  global type-specifier function-name ( func-params )<br/>
+<br/>
+function-name :<br/>
+  identifier<br/>
+<br/>
+func-params :<br/>
+  type-specifier<br/>
+  type-specifier identifier<br/>
+  type-specifier pointer-operator-sequence<br/>
+  type-specifier pointer-operator-sequence identifier<br/>
+  type-specifier , func-params<br/>
+  type-specifier identifier , func-params<br/>
+  type-specifier pointer-operator-sequence , func-params<br/>
+  type-specifier pointer-operator-sequence identifier , func-params<br/>
+<br/>
+asm-statement :<br/>
+  asm { asm-statement-sequence }<br/>
+<br/>
+asm-statement-sequence : <br/>
+  string-literal [ asm-operand : asm-operand ]<br/> 
+  string-literal [ asm-operand : asm-operand ] , asm-statement-sequence<br/>
+<br/>
+asm-operand : <br/>
+  string-literal ( expression )<br/>
+  string-literal ( expression ) , asm-operand<br/>
+<br/>
+function-definition :<br/>
+  func-head { statement }<br/>
+<br/>
+statement :<br/>
+  labled-statement<br/>
+  expression-statement<br/>
+  selection-statement<br/>
+  iteration-statement<br/>
+  jump-statement<br/>
+  simple-declaration<br/>
+<br/>
+statement-list : <br/>
+  statement<br/>
+  statement statement-list<br/>
+<br/>
+labled-statement :<br/>
+  identifier : <br/>
+<br/>
+expression-statement :<br/>
+  expression<br/>
+<br/>
+selection-statement :<br/>
+  if ( condition ) { statement-list }<br/>
+  if ( condition ) { statement-list } else { statement-list }<br/>
+<br/>
+condition :<br/>
+  expression<br/>
+<br/>
+iteration-statement :<br/>
+  while ( condition ) { statement-list }<br/>
+  do { statement-list } while ( condition ) ;<br/>
+  for ( init-expression ; condition ; update-expression ) { statement-list }<br/>
+<br/>
+jump-statement :<br/>
+  break ;<br/>
+  continue ;<br/>
+  return expression<br/>
+  goto identifier<br/>
+<br/>
+declaration-statement :<br/>
+  declaration<br/>
+<br/>
+
+
+
+</html>
+
+
+

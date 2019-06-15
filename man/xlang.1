@@ -1,0 +1,164 @@
+.TH XLANG 1 "24 May 2019" "1.0" "X Programming Language Compiler"
+.SH NAME
+xlang - X programming language compiler for Intel x86 processor 
+.SH SYNOPSIS
+.B xlang \fIinfile
+[\fB-c\fR|\fB-S\fR|\fB-O1\fR]
+.RE
+      [\fB--print-tree\fR] 
+.RE
+      [\fB--print-symtab\fR]
+.RE
+      [\fB--print-record-symtab\fR]
+.RE
+      [\fB--no-cstdlib\fR]
+.RE
+      [\fB--omit-frame-pointer\fR] 
+
+.SH DESCRIPTION
+.B xlang
+translates high level language code into its equivalent x86 \fBNASM\fR assembly code.
+The syntax of language is same as general syntax of a C programming language.
+It normally does compilation, assembly using \fBNASM\fR and linking using \fBGCC\fR.
+It takes input filename ends with .x. Only one file gets compiled at a time.
+It will generate simplest of a simple assembly code without any optimizations with provided data type sizes.
+Optimiation can be applied with \fB-O1\fR option.
+
+.SH OPTIONS
+.TP
+.BR \-S\fR
+stop after compiling program and generate assembly(.asm) file.
+.TP
+.BR \-c\fR
+compile and assemble program using \fBNASM\fR assembler.
+.TP
+.BR \-O1\fR
+apply optimization to code such as constant-folding, strength-reduction, dead-code-elimination etc.
+.TP
+.BR \--print-tree\fR
+print Abstract Syntax Tree(AST) generated during compilation process.
+.TP
+.BR \--print-symtab\fR
+print global symbol table generated during compilation process.
+.TP
+.BR \--print-record-symtab\fR
+print global record ADT symbol table generated during compilation process.
+.TP
+.BR \--no-cstdlib\fR
+during linking do not link standard C library. this passes \fB-nostdlib\fR option to \fBGCC\fR while linking.
+.TP
+.BR \--omit-frame-pointer\fR
+do not generate code for previous stack frame saving (push ebp, mov ebp, esp, ... pop ebp)
+.SH EXAMPLE
+.TP
+Consider following simple arithmetic test program \fBtest.x\fR.
+.TP
+.BR
+extern void printf(char*, int);
+.TP
+.BR
+int a,b,c;
+.TP
+.BR
+int z;
+z=10;
+.TP
+.BR
+global int main()
+.TP
+.BR
+{
+  int result;
+  a = 2;
+  b = 5;
+  c = 7;
+
+  result = a + b * c / z;
+  printf("result = %d\\n", result);
+.TP
+.BR
+}
+.TP
+Compile it and generate assembly code.
+.TP
+.BR
+\fBxlang -S test.x\fR
+.TP
+It will generate following \fBx86 NASM\fR assembly code \fBtest.asm\fR file. With no options, xlang will compile program, assemble it with \fBNASM\fR and link it with \fBGCC\fR, that can be run with \fB./a.out\fR command.
+
+section .text
+    extern printf
+    global main
+
+; [ function: main() ]
+.TP
+.BR
+main:
+    push ebp
+    mov ebp, esp
+    sub esp, 4    ; allocate space for local variables
+    ; result = [ebp - 4], dword
+.TP
+.BR
+; line 11
+    mov eax, 2
+    mov dword[a], eax    ; line: 11
+.TP
+.BR
+; line 12
+    mov eax, 5
+    mov dword[b], eax    ; line: 12
+.TP
+.BR
+; line 13
+    mov eax, 7
+    mov dword[c], eax    ; line: 13
+.TP
+.BR
+; line 15
+    xor eax, eax
+    xor edx, edx
+    mov eax, dword[b]  ; b
+    mov ebx, dword[c]  ; c
+    mul ebx
+    mov ebx, dword[z]  ; z
+    div ebx
+    mov ebx, dword[a]  ; a
+    add eax, ebx
+    mov dword[ebp - 4], eax    ; line: 15
+.TP
+.BR
+; line: 16, func_call: printf
+; line 16
+    mov eax, dword[ebp - 4]  ; result
+    push eax    ; param 2
+    mov eax, string_val1
+    push eax    ; param 1
+    call printf
+    add esp, 8    ; restore func-call params stack frame
+._exit_main:
+    mov esp, ebp
+    pop ebp
+    ret 
+
+section .data
+    z dd 10
+    string_val1 db 0x72,0x65,0x73,0x75,0x6C,0x74,0x20,0x3D,0x20,0x25,0x64,0x0A,0x00    ; 'result = %d\n'
+
+
+section .bss
+    c resd 1
+    a resd 1
+    b resd 1
+
+
+.TP
+You can assembly this .asm file using \fBNASM\fR with \-felf32 option.
+
+.SH SEE ALSO
+.B nasm(1),  gcc(1).
+
+
+
+
+
