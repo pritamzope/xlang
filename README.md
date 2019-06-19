@@ -7,7 +7,7 @@
 
 xlang is an high level language compiler based on Linux platform that emits 
 Netwide Assembler(NASM) x86 assembly. You can develop simple programs as well as 
-low-level applications such as writing bootloaders and other OS components.
+low-level applications such as writing OS components.
 
 # What Can It Do?
 
@@ -43,7 +43,7 @@ Or see the manual,
 
 #### Dependency
 
-  GCC with C++11 compiler<br/>
+  GCC with C++11 compiler(g++)<br/>
   Netwide Assembler(NASM)
 
 ### Step 1: Getting the Source Code
@@ -76,7 +76,7 @@ Compile the program and Run it.
 
 ## Example
 Here's a simple addition program that imports C printf() function.
-Create a file names "hello_world.x" which reads as follow:
+Create a file named "hello_world.x" which reads as follow:
 
     extern void printf(char*, int);
 
