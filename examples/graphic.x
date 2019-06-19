@@ -2,9 +2,9 @@
 
 How to :
 
-1] Compile code using xlang :  xlang -S graphics.x
-2] Assemble it using nasm   :  nasm -fbin graphics.asm
-3] Run it on qemu           :  qemu-system-x86_64 graphics
+1] Compile code using xlang :  xlang -S graphic.x
+2] Assemble it using nasm   :  nasm -fbin graphic.asm
+3] Run it on qemu           :  qemu-system-x86_64 graphic
 
 */
 
