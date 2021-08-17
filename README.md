@@ -78,18 +78,20 @@ Compile the program and Run it.
 Here's a simple addition program that imports C printf() function.
 Create a file named "hello_world.x" which reads as follow:
 
-    extern void printf(char*, int);
+```C++
+extern void printf(char*, int);
 
-    global void main()
-    {
-        int a, b, sum;
-        a = 10;
-        b = 20;
+global void main()
+{
+    int a, b, sum;
+    a = 10;
+    b = 20;
 
-        sum = a + b;
+    sum = a + b;
 
-        printf("sum: %d\n", sum);
-    }
+    printf("sum: %d\n", sum);
+}
+```
 
 Then run xlang in the terminal
 
@@ -106,46 +108,48 @@ Then run xlang in the terminal with **-S** option.
 
 It will create a new file "hello_world.asm" which reads as follows:
 
-    section .text
-        extern printf
-        global main
+```ASM
+section .text
+    extern printf
+    global main
 
-    ; [ function: main() ]
-    main:
-        push ebp
-        mov ebp, esp
-        sub esp, 12    ; allocate space for local variables
-        ; sum = [ebp - 12], dword
-        ; b = [ebp - 4], dword
-        ; a = [ebp - 8], dword
-    ; line 6
-        mov eax, 10
-        mov dword[ebp - 8], eax
-    ; line 7
-        mov eax, 20
-        mov dword[ebp - 4], eax
-    ; line 9
-        xor eax, eax
-        xor edx, edx
-        mov eax, dword[ebp - 8]  ; a
-        mov ebx, dword[ebp - 4]  ; b
-        add eax, ebx
-        mov dword[ebp - 12], eax
-    ; line: 11, func_call: printf
-    ; line 11
-        mov eax, dword[ebp - 12]  ; assignment sum
-        push eax    ; param 2
-        mov eax, string_val1
-        push eax    ; param 1
-        call printf
-        add esp, 8    ; restore func-call params stack frame
-    ._exit_main:
-        mov esp, ebp
-        pop ebp
-        ret 
-    
-    section .data
-        string_val1 db 0x73,0x75,0x6D,0x3A,0x20,0x25,0x64,0x0A,0x00    ; 'sum: %d\n'
+; [ function: main() ]
+main:
+    push ebp
+    mov ebp, esp
+    sub esp, 12    ; allocate space for local variables
+    ; sum = [ebp - 12], dword
+    ; b = [ebp - 4], dword
+    ; a = [ebp - 8], dword
+; line 6
+    mov eax, 10
+    mov dword[ebp - 8], eax
+; line 7
+    mov eax, 20
+    mov dword[ebp - 4], eax
+; line 9
+    xor eax, eax
+    xor edx, edx
+    mov eax, dword[ebp - 8]  ; a
+    mov ebx, dword[ebp - 4]  ; b
+    add eax, ebx
+    mov dword[ebp - 12], eax
+; line: 11, func_call: printf
+; line 11
+    mov eax, dword[ebp - 12]  ; assignment sum
+    push eax    ; param 2
+    mov eax, string_val1
+    push eax    ; param 1
+    call printf
+    add esp, 8    ; restore func-call params stack frame
+._exit_main:
+    mov esp, ebp
+    pop ebp
+    ret 
+
+section .data
+    string_val1 db 0x73,0x75,0x6D,0x3A,0x20,0x25,0x64,0x0A,0x00    ; 'sum: %d\n'
+```
 
 --------------------------------------------------------------------------------
 
